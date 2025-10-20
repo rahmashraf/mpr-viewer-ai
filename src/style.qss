@@ -1,0 +1,239 @@
+/* Modern Dark Mode Style for MPR Viewer */
+
+/* Global Widget Styling */
+QWidget {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 10pt;
+}
+
+/* Main Window */
+QMainWindow {
+    background-color: #1e1e1e;
+}
+
+/* Push Buttons */
+QPushButton {
+    background-color: #2d2d30;
+    color: #e0e0e0;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    padding: 8px 16px;
+    min-height: 28px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #3e3e42;
+    border: 1px solid #007acc;
+}
+
+QPushButton:pressed {
+    background-color: #007acc;
+    border: 1px solid #005a9e;
+}
+
+QPushButton:checked {
+    background-color: #007acc;
+    border: 1px solid #005a9e;
+    color: #ffffff;
+}
+
+QPushButton:disabled {
+    background-color: #252526;
+    color: #656565;
+    border: 1px solid #3e3e42;
+}
+
+/* Group Box */
+QGroupBox {
+    background-color: #252526;
+    border: 1px solid #3e3e42;
+    border-radius: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 4px 8px;
+    background-color: #2d2d30;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    color: #ffffff;
+    margin-left: 8px;
+}
+
+/* Sliders */
+QSlider::groove:horizontal {
+    background: #3e3e42;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: #007acc;
+    border: 1px solid #005a9e;
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #1e90ff;
+    border: 1px solid #007acc;
+}
+
+QSlider::sub-page:horizontal {
+    background: #007acc;
+    border-radius: 3px;
+}
+
+/* Combo Box */
+QComboBox {
+    background-color: #2d2d30;
+    color: #e0e0e0;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    padding: 6px 12px;
+    min-height: 24px;
+}
+
+QComboBox:hover {
+    border: 1px solid #007acc;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #e0e0e0;
+    margin-right: 6px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #2d2d30;
+    color: #e0e0e0;
+    border: 1px solid #007acc;
+    selection-background-color: #007acc;
+    selection-color: #ffffff;
+    outline: none;
+}
+
+/* Labels */
+QLabel {
+    color: #e0e0e0;
+    background-color: transparent;
+    padding: 2px;
+}
+
+/* Status Bar */
+QStatusBar {
+    background-color: #007acc;
+    color: #ffffff;
+    border-top: 1px solid #005a9e;
+    padding: 4px;
+    font-weight: 500;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* Scroll Bar */
+QScrollBar:vertical {
+    background: #2d2d30;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background: #3e3e42;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #007acc;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: #2d2d30;
+    height: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #3e3e42;
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #007acc;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* Message Box */
+QMessageBox {
+    background-color: #2d2d30;
+}
+
+QMessageBox QLabel {
+    color: #e0e0e0;
+}
+
+QMessageBox QPushButton {
+    min-width: 80px;
+}
+
+/* File Dialog */
+QFileDialog {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Tool Tip */
+QToolTip {
+    background-color: #2d2d30;
+    color: #e0e0e0;
+    border: 1px solid #007acc;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+/* Control Panel Specific */
+QWidget#control_panel {
+    background-color: #252526;
+    border-right: 2px solid #3e3e42;
+}
+
+/* Matplotlib Canvas Integration */
+QWidget[class="FigureCanvasQTAgg"] {
+    background-color: #1e1e1e;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+}
+
+/* Viewport Groups */
+QGroupBox[objectName="viewport_group"] {
+    padding: 8px;
+    background-color: #1e1e1e;
+}
