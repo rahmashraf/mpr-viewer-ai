@@ -15,16 +15,34 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - **Colormap Selection**: Choose from multiple colormaps for better visualization (e.g., Gray, Viridis, Plasma, Jet).
 - **Visualization Controls** <br>
  **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
- **Brightness/Contrast Adjustment**: Right-click and drag <br>
- **Zoom & Pan**: Mouse wheel zoom + arrow key panning <br>
- **Crosshair Navigation**: Click-to-navigate across views <br>
+ **Brightness/Contrast Adjustment** <br>
 ![Visualization Controls](path/to/visualization-controls.gif)
-
 - **Crosshair Navigation**: Automatically synchronize slice navigation across all planes.
 - **Cine Mode**: Play slices as an animated sequence.
 - **Mouse Interaction**: Zoom, pan, and interact with the images directly using the mouse.
-- **Reset View**: Instantly reset brightness, contrast, and crosshair positions to default.
+- ### 🤖 AI Orientation Detection
+Automatically detect scan orientation with confidence scores:
+- Supports Axial, Coronal, and Sagittal detection
+- Deep learning model with high accuracy
+- Arabic and English labels for medical professionals
 
+![Orientation Detection](path/to/orientation-detection.gif)
+
+### 🎯 Segmentation Analysis
+- Load and visualize segmentation masks
+- **Outline Mode**: Display segmentation boundaries on scan
+- Automatic resampling for mismatched dimensions
+- Multi-label support
+
+![Segmentation Overlay](path/to/segmentation-overlay.gif)
+
+### 📐 Region of Interest (ROI) Tools
+- Interactive ROI drawing on any view
+- 3D ROI propagation across all slices
+- Volume extraction and NIfTI export
+- Real-time preview with cyan highlighting
+
+![ROI Drawing](path/to/roi-drawing.gif)
 ---
 
 ## Prerequisites
