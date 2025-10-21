@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QGridLayout,
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QCursor
 import matplotlib
-
+from scipy.ndimage import rotate, zoom  # Removed binary_fill_holes
+from skimage import measure
 matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
@@ -20,6 +21,7 @@ from scipy.ndimage import rotate
 from vtk.util import numpy_support as vtk_numpy_support
 import SimpleITK as sitk
 import os
+from detect_orientation import predict_dicom_image
 
 
 class MRIViewer(QWidget):
@@ -29,6 +31,11 @@ class MRIViewer(QWidget):
         self.slices = [0, 0, 0]
         self.marked_points = [[], [], []]
         self.zoom_level = 1.0
+
+        self.segmentation_array = None
+
+        # Track the current loaded path
+        self.current_scan_path = None
 
         # Configure matplotlib for dark mode
         plt.style.use('dark_background')
@@ -72,7 +79,7 @@ class MRIViewer(QWidget):
 
     def initUI(self):
         # Basic UI setup
-        self.setWindowTitle("MRI Viewer with Segmentation")
+        self.setWindowTitle("MRI Viewer ")
         self.setGeometry(100, 100, 1400, 800)
 
         # Main layout is horizontal to put controls on left
@@ -97,6 +104,15 @@ class MRIViewer(QWidget):
         self.load_dicom_file_button.clicked.connect(self.load_single_dicom)
         self.control_layout.addWidget(self.load_dicom_file_button)
 
+        load_layout = QVBoxLayout()
+        self.toggle_outline_button = QPushButton('🔲 Show Outline')
+        self.toggle_outline_button.setCheckable(True)
+        self.toggle_outline_button.clicked.connect(self.toggle_segmentation_outline)
+        self.toggle_outline_button.setEnabled(False)
+        load_layout.addWidget(self.toggle_outline_button)
+
+
+
         # --- ROI MODIFICATION START ---
         # Add ROI buttons
         roi_group = QGroupBox("Region of Interest (ROI)")
@@ -117,6 +133,18 @@ class MRIViewer(QWidget):
         roi_group.setLayout(roi_layout)
         self.control_layout.addWidget(roi_group)
         # --- ROI MODIFICATION END ---
+
+        self.load_segmentation_button = QPushButton('🎯 Load Segmentation')
+        self.load_segmentation_button.clicked.connect(self.load_segmentation)
+        self.load_segmentation_button.setEnabled(False)
+        load_layout.addWidget(self.load_segmentation_button)
+
+        # New simplified toggle button
+        self.toggle_outline_button = QPushButton('🔲 Show Outline')
+        self.toggle_outline_button.setCheckable(True)
+        self.toggle_outline_button.clicked.connect(self.toggle_segmentation_outline)
+        self.toggle_outline_button.setEnabled(False)
+        load_layout.addWidget(self.toggle_outline_button)
 
         # Play/Pause button
         self.play_pause_button = QPushButton("Play/Pause", self)
@@ -599,6 +627,7 @@ class MRIViewer(QWidget):
     def load_nifti(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open NIfTI File", "",
                                                    "NIfTI files (*.nii *.nii.gz);;All files (*)")
+        self.load_segmentation_button.setEnabled(True)
         if file_path:
             try:
                 self.sitk_image = sitk.ReadImage(file_path)
@@ -611,6 +640,7 @@ class MRIViewer(QWidget):
 
     def load_dicom_series(self):
         directory_path = QFileDialog.getExistingDirectory(self, "Select DICOM Series Directory")
+        self.load_segmentation_button.setEnabled(True)
         if directory_path:
             try:
                 reader = sitk.ImageSeriesReader()
@@ -623,15 +653,21 @@ class MRIViewer(QWidget):
                 reader.SetFileNames(dicom_series)
                 self.sitk_image = reader.Execute()
                 self.scan_array = sitk.GetArrayFromImage(self.sitk_image)
+                self.current_scan_path = directory_path  # Store path
                 print(f"Loaded DICOM series with shape: {self.scan_array.shape}")
                 self.initialize_viewers()
                 self.status_bar.showMessage(f"Loaded DICOM series: {len(dicom_series)} images")
+
+                # Auto-detect orientation
+                self.auto_detect_orientation(dicom_series[0])  # Use first DICOM file
+
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to load DICOM series: {str(e)}")
 
     def load_single_dicom(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open DICOM File", "",
                                                    "DICOM files (*.dcm);;All files (*)")
+        self.load_segmentation_button.setEnabled(True)
         if file_path:
             try:
                 dicom_data = pydicom.dcmread(file_path)
@@ -643,16 +679,132 @@ class MRIViewer(QWidget):
                             pixel_array = np.max(pixel_array) - pixel_array
 
                     self.scan_array = pixel_array[np.newaxis, :, :]
-
                     self.sitk_image = sitk.GetImageFromArray(self.scan_array)
+                    self.current_scan_path = file_path  # Store path
 
                     print(f"Loaded single DICOM with shape: {self.scan_array.shape}")
                     self.initialize_viewers()
                     self.status_bar.showMessage(f"Loaded DICOM: {os.path.basename(file_path)}")
+
+                    # Auto-detect orientation
+                    self.auto_detect_orientation(file_path)
+
                 else:
                     QMessageBox.warning(self, "Warning", "DICOM file does not contain pixel data")
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to load DICOM file: {str(e)}")
+
+    def auto_detect_orientation(self, dicom_file_path):
+        """Automatically detect orientation when DICOM is loaded."""
+        try:
+            # Read DICOM file
+            ds = pydicom.dcmread(dicom_file_path)
+            pixel_array = ds.pixel_array
+
+            # Call the prediction function
+            predicted_class, confidence = predict_dicom_image(pixel_array)
+
+            # Arabic mapping for display
+            arabic_labels = {
+                'axial': 'محوري (Axial / عرضي)',
+                'coronal': 'جبهّي / كورونال (Coronal)',
+                'sagittal': 'سهمي (Sagittal)',
+            }
+
+            arabic_name = arabic_labels.get(predicted_class, predicted_class)
+
+            # Show result in status bar
+            self.status_bar.showMessage(
+                f"✓ Detected: {predicted_class} - {arabic_name} (confidence: {confidence:.1f}%)",
+                10000  # Show for 10 seconds
+            )
+
+            # Print to console
+            print(f"\n=== Auto Orientation Detection ===")
+            print(f"Orientation: {predicted_class}")
+            print(f"Arabic: {arabic_name}")
+            print(f"Confidence: {confidence:.2f}%")
+            print("===================================\n")
+
+            # Optional: Show popup notification for low confidence
+            if confidence < 70:
+                QMessageBox.information(
+                    self,
+                    "Orientation Detection",
+                    f"⚠️ Low confidence detection:\n\n"
+                    f"Orientation: {predicted_class}\n"
+                    f"Arabic: {arabic_name}\n"
+                    f"Confidence: {confidence:.1f}%\n\n"
+                    f"Please verify the orientation manually."
+                )
+
+        except Exception as e:
+            error_msg = f"Auto-detection failed: {str(e)}"
+            print(f"Error in auto_detect_orientation: {e}")
+            self.status_bar.showMessage(error_msg, 5000)
+            # Don't show popup for auto-detection errors to avoid interrupting workflow
+
+    def detect_orientation_action(self):
+        """Manual orientation detection triggered by button."""
+        # Make sure a scan is loaded
+        if not hasattr(self, 'current_scan_path') or not self.current_scan_path:
+            QMessageBox.warning(self, "No Scan Loaded",
+                                "Please load a DICOM series or file first before detecting orientation.")
+            self.status_bar.showMessage("No scan loaded for orientation detection.", 5000)
+            return
+
+        try:
+            # Determine the DICOM file to use
+            if os.path.isdir(self.current_scan_path):
+                # It's a directory (DICOM series), use first file
+                reader = sitk.ImageSeriesReader()
+                dicom_series = reader.GetGDCMSeriesFileNames(self.current_scan_path)
+                if not dicom_series:
+                    raise Exception("No DICOM files found in directory")
+                dicom_file = dicom_series[0]
+            else:
+                # It's a single file
+                dicom_file = self.current_scan_path
+
+            # Read DICOM and predict
+            ds = pydicom.dcmread(dicom_file)
+            pixel_array = ds.pixel_array
+            predicted_class, confidence = predict_dicom_image(pixel_array)
+
+            # Arabic mapping for display
+            arabic_labels = {
+                'axial': 'محوري (Axial / عرضي)',
+                'coronal': 'جبهّي / كورونال (Coronal)',
+                'sagittal': 'سهمي (Sagittal)',
+            }
+
+            arabic_name = arabic_labels.get(predicted_class, predicted_class)
+
+            # Show result in a message box
+            result_msg = f"Detected Orientation: {predicted_class}\n"
+            result_msg += f"Arabic: {arabic_name}\n"
+            result_msg += f"Confidence: {confidence:.1f}%"
+
+            QMessageBox.information(self, "Orientation Detection Result", result_msg)
+
+            # Also show in status bar
+            self.status_bar.showMessage(
+                f"Detected: {predicted_class} - {arabic_name} (confidence: {confidence:.1f}%)",
+                10000  # Show for 10 seconds
+            )
+
+            print(f"=== Manual Orientation Detection ===")
+            print(f"Orientation: {predicted_class}")
+            print(f"Arabic: {arabic_name}")
+            print(f"Confidence: {confidence:.2f}%")
+
+        except Exception as e:
+            error_msg = f"Error detecting orientation: {str(e)}"
+            QMessageBox.critical(self, "Detection Error", error_msg)
+            self.status_bar.showMessage(error_msg, 5000)
+            print(f"Error: {e}")
+            import traceback
+            traceback.print_exc()
 
     def initialize_viewers(self):
         if self.scan_array is None:
@@ -706,6 +858,7 @@ class MRIViewer(QWidget):
         if self.oblique_enabled:
             self.show_oblique_view()
 
+
     def update_coronal_slice(self, value):
         self.crosshair_y = value
         if self.scan_array is not None:
@@ -743,6 +896,10 @@ class MRIViewer(QWidget):
                 self.axial_ax.add_patch(rect)
                 self.axial_ax.roi_patch = rect  # Store ref
         # --- ROI MODIFICATION END ---
+            # Draw outline if enabled
+            if self.outline_enabled and self.segmentation_array is not None:
+                seg_slice = self.segmentation_array[slice_index, :, :]
+                self.draw_surface_outline(self.axial_ax, seg_slice)
 
         self.axial_vline = self.axial_ax.axvline(self.crosshair_x, color='r', linestyle='--')
         self.axial_hline = self.axial_ax.axhline(self.crosshair_y, color='r', linestyle='--')
@@ -770,6 +927,9 @@ class MRIViewer(QWidget):
                 self.coronal_ax.add_patch(rect)
                 self.coronal_ax.roi_patch = rect  # Store ref
         # --- ROI MODIFICATION END ---
+        if self.outline_enabled and self.segmentation_array is not None:
+            seg_slice = self.segmentation_array[slice_index, :, :]
+            self.draw_surface_outline(self.axial_ax, seg_slice)
 
         self.coronal_vline = self.coronal_ax.axvline(self.crosshair_x, color='r', linestyle='--')
         self.coronal_hline = self.coronal_ax.axhline(self.scan_array.shape[0] - 1 - self.crosshair_z, color='r',
@@ -798,12 +958,104 @@ class MRIViewer(QWidget):
                 self.sagittal_ax.add_patch(rect)
                 self.sagittal_ax.roi_patch = rect  # Store ref
         # --- ROI MODIFICATION END ---
+        if self.outline_enabled and self.segmentation_array is not None:
+            seg_slice = self.segmentation_array[slice_index, :, :]
+            self.draw_surface_outline(self.axial_ax, seg_slice)
 
         self.sagittal_vline = self.sagittal_ax.axvline(self.crosshair_y, color='r', linestyle='--')
         self.sagittal_hline = self.sagittal_ax.axhline(self.scan_array.shape[0] - 1 - self.crosshair_z, color='r',
                                                        linestyle='--')
         self.sagittal_ax.plot(self.crosshair_y, self.scan_array.shape[0] - 1 - self.crosshair_z, 'ro', markersize=5)
         self.sagittal_canvas.draw()
+
+    def draw_surface_outline(self, ax, seg_slice):
+        """Draw ONLY the outer surface outline for segmentation on a given axis"""
+
+        if seg_slice is None or seg_slice.size == 0:
+            return
+
+        # Create a binary mask of ALL segmentation (any non-zero value)
+        combined_mask = (seg_slice > 0).astype(np.uint8)
+
+        if np.sum(combined_mask) == 0:
+            return  # Nothing to draw
+
+        try:
+            # --- NEW ROBUST STRATEGY ---
+            # 1. Find ALL contours in the combined mask
+            contours = measure.find_contours(combined_mask, 0.5)
+
+            if not contours:
+                return  # No contours found
+
+            # 2. Find the contour that encloses the largest area
+            largest_contour = None
+            max_area = -1
+
+            for contour in contours:
+                # Get bounding box (min_row, min_col, max_row, max_col)
+                min_r, min_c = np.min(contour, axis=0)
+                max_r, max_c = np.max(contour, axis=0)
+                # Calculate area of the bounding box
+                area = (max_r - min_r) * (max_c - min_c)
+
+                if area > max_area:
+                    max_area = area
+                    largest_contour = contour
+
+            # 3. Draw only the largest contour (which is the outer one)
+            if largest_contour is not None:
+                ax.plot(largest_contour[:, 1], largest_contour[:, 0],
+                        color='#FF3333', linewidth=1.5, alpha=1.0)
+            # --- END NEW STRATEGY ---
+
+        except Exception as e:
+            # Log the error, which might explain why nothing appeared
+            self.logger.error(f"Error drawing outer surface outline: {e}", exc_info=True)
+    def draw_surface_outline(self, ax, seg_slice):
+        """Draw ONLY the outer surface outline for segmentation on a given axis"""
+
+        if seg_slice is None or seg_slice.size == 0:
+            return
+
+        # Create a binary mask of ALL segmentation (any non-zero value)
+        combined_mask = (seg_slice > 0).astype(np.uint8)
+
+        if np.sum(combined_mask) == 0:
+            return  # Nothing to draw
+
+        try:
+            # --- NEW ROBUST STRATEGY ---
+            # 1. Find ALL contours in the combined mask
+            contours = measure.find_contours(combined_mask, 0.5)
+
+            if not contours:
+                return  # No contours found
+
+            # 2. Find the contour that encloses the largest area
+            largest_contour = None
+            max_area = -1
+
+            for contour in contours:
+                # Get bounding box (min_row, min_col, max_row, max_col)
+                min_r, min_c = np.min(contour, axis=0)
+                max_r, max_c = np.max(contour, axis=0)
+                # Calculate area of the bounding box
+                area = (max_r - min_r) * (max_c - min_c)
+
+                if area > max_area:
+                    max_area = area
+                    largest_contour = contour
+
+            # 3. Draw only the largest contour (which is the outer one)
+            if largest_contour is not None:
+                ax.plot(largest_contour[:, 1], largest_contour[:, 0],
+                        color='#FF3333', linewidth=1.5, alpha=1.0)
+            # --- END NEW STRATEGY ---
+
+        except Exception as e:
+            # Log the error, which might explain why nothing appeared
+            self.logger.error(f"Error drawing outer surface outline: {e}", exc_info=True)
 
     def show_oblique_view(self):
         if not hasattr(self, 'sitk_image') or self.sitk_image is None:
@@ -1017,19 +1269,107 @@ class MRIViewer(QWidget):
         ax.set_ylim(new_ylim)
         ax.figure.canvas.draw_idle()
 
-    def detect_orientation_action(self):
-        # Make sure a scan is loaded
-        if not hasattr(self, 'current_scan_folder') or not self.current_scan_folder:
-            self.status_bar.showMessage("No scan loaded for orientation detection.", 5000)
+
+    def load_segmentation(self, *args):
+        """Load segmentation masks with automatic resampling if needed"""
+        if self.scan_array is None:
+            QMessageBox.warning(self, "No Scan", "Please load a scan first.")
             return
 
-        try:
-            orientation, conf, _ = detect_orientation_from_path(self.current_scan_folder)
-            self.status_bar.showMessage(
-                f"Detected orientation: {orientation} (confidence: {conf:.2f})", 8000
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Open Segmentation File", "",
+            "NIfTI files (*.nii *.nii.gz);;NumPy files (*.npy);;All files (*)"
+        )
+        if not file_path:
+            return
+
+        self.logger.info(f"Loading segmentation from: {file_path}")
+        self.status_bar.showMessage("⏳ Loading segmentation...", 0)
+
+        # Load segmentation
+        if file_path.endswith('.npy'):
+            seg_array = np.load(file_path)
+        else:
+            seg_image = sitk.ReadImage(file_path)
+            seg_array = sitk.GetArrayFromImage(seg_image)
+
+        # Check if shapes match
+        if seg_array.shape != self.scan_array.shape:
+            self.logger.warning(
+                f"Segmentation shape {seg_array.shape} doesn't match scan shape {self.scan_array.shape}"
             )
-        except Exception as e:
-            self.status_bar.showMessage(f"Error detecting orientation: {str(e)}", 5000)
+
+            # Ask user if they want to resample
+            reply = QMessageBox.question(
+                self,
+                'Shape Mismatch',
+                f"Segmentation shape {seg_array.shape} doesn't match scan shape {self.scan_array.shape}.\n\n"
+                "Do you want to automatically resample the segmentation to match the scan?\n\n"
+                "⚠ This may reduce accuracy of the segmentation boundaries.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+
+            if reply == QMessageBox.Yes:
+                # Calculate zoom factors for each dimension
+                zoom_factors = [
+                    self.scan_array.shape[0] / seg_array.shape[0],
+                    self.scan_array.shape[1] / seg_array.shape[1],
+                    self.scan_array.shape[2] / seg_array.shape[2]
+                ]
+
+                self.logger.info(f"Resampling segmentation with zoom factors: {zoom_factors}")
+                self.status_bar.showMessage("⏳ Resampling segmentation...", 0)
+
+                # Resample using nearest neighbor to preserve label values
+                seg_array = zoom(seg_array, zoom_factors, order=0)  # order=0 for nearest neighbor
+
+                self.logger.info(f"Resampled segmentation to shape: {seg_array.shape}")
+            else:
+                self.status_bar.showMessage("❌ Segmentation loading cancelled", 5000)
+                return
+
+        self.segmentation_array = seg_array
+
+        unique_labels = np.unique(self.segmentation_array)
+        self.logger.info(f"Loaded segmentation with shape: {self.segmentation_array.shape}")
+        self.logger.info(f"Unique labels: {unique_labels}")
+
+        # highlight-start
+        # Enable the new outline button
+        self.toggle_outline_button.setEnabled(True)
+        # highlight-end
+
+        self.status_bar.showMessage(
+            f"✓ Loaded segmentation: {os.path.basename(file_path)} | {len(unique_labels)} labels", 5000
+        )
+
+    # ========================================================================
+    # SEGMENTATION VIEW METHODS
+    # ========================================================================
+
+    # highlight-start
+    def toggle_segmentation_outline(self, checked):
+        """Toggle segmentation outline on/off for all main views"""
+        self.outline_enabled = checked
+
+        if checked:
+            if self.segmentation_array is None:
+                QMessageBox.warning(self, "No Segmentation", "Please load a segmentation first.")
+                self.toggle_outline_button.setChecked(False)
+                self.outline_enabled = False
+                return
+
+            self.toggle_outline_button.setText("🔲 Hide Outline")
+            self.status_bar.showMessage("✓ Segmentation outline enabled", 3000)
+        else:
+            self.toggle_outline_button.setText("🔲 Show Outline")
+            self.status_bar.showMessage("✓ Segmentation outline disabled", 3000)
+
+        # Redraw all slices to show/hide the outline
+        self.update_all_slices()
+
+    # highlight-end
 
 
 if __name__ == "__main__":
@@ -1045,3 +1385,4 @@ if __name__ == "__main__":
     viewer = MRIViewer()
     viewer.show()
     sys.exit(app.exec_())
+ #jxjjxxx
