@@ -86,7 +86,7 @@ To install all required libraries, run:
 ```bash
 pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
 ```
-## Installation and Usage
+# Installation and Usage
 
 1. Clone this repository:
 
@@ -98,7 +98,7 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
 2. Run the application:
 
    ```bash
-   python MPR_Viewer1.py
+   python test 101.py
    ```
 
 ---
