@@ -116,11 +116,7 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
 This project is licensed under the MIT License. See the [LICENSE](License) file for details.
 ---
 
-## Contribution
 
-
-
----
 
 
 
