@@ -1,6 +1,6 @@
 # MPR Viewer with Segmentation
-
-## Description
+**Multi-Planar Reconstruction Viewer for Medical Imaging**
+## OVERVIEW
 
 **A comprehensive medical imaging visualization tool for DICOM and NIfTI files**
 
