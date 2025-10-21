@@ -2,9 +2,9 @@
 
 ## Description
 
-The **MPR Viewer with Segmentation** is an interactive medical imaging viewer designed to visualize MRI scans in three orthogonal planes (Axial, Coronal, and Sagittal). This tool allows users to load medical image files (e.g., NIfTI format), navigate through slices, and explore volume rendering. It provides essential features such as brightness and contrast adjustments, crosshair navigation, playback of slices, and customizable colormaps for intuitive analysis.
+**A comprehensive medical imaging visualization tool for DICOM and NIfTI files**
 
-The application is built using **PyQt5**, **Matplotlib**, **SimpleITK**, and **VTK**, ensuring a rich user interface and powerful 3D visualization.
+MPR Viewer is a powerful, user-friendly desktop application designed for medical professionals and researchers to visualize and analyze scans. Built with Python and PyQt5, it provides an intuitive interface for viewing medical images in multiple orientations, with advanced features for segmentation analysis, ROI extraction, and AI-powered orientation detection.
 
 ---
 
