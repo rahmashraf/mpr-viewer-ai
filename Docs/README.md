@@ -19,7 +19,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - **Crosshair Navigation**: Automatically synchronize slice navigation across all planes.
 - **Cine Mode**: Play slices as an animated sequence.
 - **Mouse Interaction**: Interact with the images directly using the mouse.
-- ### AI Orientation Detection
+-### AI Orientation Detection
 Automatically detect scan orientation with confidence scores:
 - Supports Axial, Coronal, and Sagittal detection
 - Deep learning model with high accuracy
@@ -27,7 +27,7 @@ Automatically detect scan orientation with confidence scores:
 
 ![Orientation Detection](path/to/orientation-detection.gif)
 
-### Segmentation Analysis
+-### Segmentation Analysis
 - Load and visualize segmentation masks
 - **Outline Mode**: Display segmentation boundaries on scan
 - Automatic resampling for mismatched dimensions
@@ -35,7 +35,7 @@ Automatically detect scan orientation with confidence scores:
 
 ![Segmentation Overlay](path/to/segmentation-overlay.gif)
 
-### Region of Interest (ROI) Tools
+-### Region of Interest (ROI) Tools
 - Interactive ROI drawing on any view
 - 3D ROI propagation across all slices
 - Volume extraction and NIfTI export
