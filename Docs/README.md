@@ -14,12 +14,15 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
   Simultaneously view Axial, Coronal, and Sagittal slices.
  ![Multi-Planar Views](path/to/mpr-views.gif)
 - ### Visualization Controls <br>
- **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
- **Brightness/Contrast Adjustment** <br>
+   **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
+   **Brightness/Contrast Adjustment** <br>
 ![Visualization Controls](path/to/visualization-controls.gif)
-- ### Crosshair Navigation: Automatically synchronize slice navigation across all planes.
-- ### Cine Mode: Play slices as an animated sequence.
-- ### Mouse Interaction: Interact with the images directly using the mouse.
+- ### Crosshair Navigation:
+  Automatically synchronize slice navigation across all planes.
+- ### Cine Mode:
+  Play slices as an animated sequence.
+- ### Mouse Interaction:
+  Interact with the images directly using the mouse.
   
 - ### AI Orientation Detection
 Automatically detect scan orientation with confidence scores:
