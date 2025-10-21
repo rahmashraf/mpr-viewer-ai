@@ -1,6 +1,6 @@
 # MPR Viewer with Segmentation
 **Multi-Planar Reconstruction Viewer for Medical Imaging**
-## OVERVIEW
+# Overview
 
 **A comprehensive medical imaging visualization tool for DICOM and NIfTI files**
 
@@ -8,7 +8,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 
 ---
 
-## Features
+# Features
 
 - **Three Viewports**: Simultaneously view Axial, Coronal, and Sagittal slices.
  ![Multi-Planar Views](path/to/mpr-views.gif)
