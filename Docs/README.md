@@ -43,9 +43,43 @@ Automatically detect scan orientation with confidence scores:
 
 ![ROI Drawing](path/to/roi-drawing.gif)
 
+- ## Oblique View 
+- Custom oblique plane rendering
+- Adjustable rotation angles (X & Y axes)
+- Real-time 3D transformation
+- Independent slice navigation
+
+![Oblique View](path/to/oblique-view.gif)
+
 ---
 
-## Prerequisites
+# 🛠 Tech Stack
+
+## Core Technologies
+| Technology | Purpose |
+|------------|---------|
+| ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) | Primary programming language |
+| ![PyQt5](https://img.shields.io/badge/PyQt5-41CD52?style=for-the-badge&logo=qt&logoColor=white) | GUI framework |
+| ![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white) | Array processing |
+| ![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?style=for-the-badge) | Visualization engine |
+
+## Medical Imaging Libraries
+- **SimpleITK** - Medical image I/O and processing
+- **pydicom** - DICOM file handling
+- **scikit-image** - Image processing algorithms
+
+## Deep Learning
+- **TensorFlow/Keras** - Orientation detection model
+- Custom CNN architecture for medical image classification
+
+## Additional Tools
+- **SciPy** - Scientific computing utilities
+- **Qt5 Styling** - Modern dark-themed UI
+
+---
+
+# Requirments
+
 
 Ensure you have the following dependencies installed on your system:
 
