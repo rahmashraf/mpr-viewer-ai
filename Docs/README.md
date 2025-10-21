@@ -77,14 +77,11 @@ Automatically detect scan orientation with confidence scores:
 - **SciPy** - Scientific computing utilities
 - **Qt5 Styling** - Modern dark-themed UI
 
-To install the required libraries, run:
+To install all required libraries, run:
 
 ```bash
-pip install PyQt5 matplotlib SimpleITK vtk numpy
+pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
 ```
----
-
-
 ## Installation and Usage
 
 1. Clone this repository:
@@ -118,26 +115,7 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy
 - Directory-based DICOM series are also supported.
 
 ---
-## Slice View
 
-The MRI scan can be viewed in multiple slices. Below is an example of a slice view:
-
-![Axial slice View](MPR-Viewer\Docs\Brain_Views\axial_slice.jpg)
----
-
-## Screenshots
-
-![Axial, Coronal, and Sagittal slices in synchronized crosshair mode](MPR-Viewer\screenshots\Screenshot3.png)
-
-![Axial, Coronal, and Sagittal slices in synchronized crosshair mode in addition to the 3d volume](MPR-Viewer\screenshots\Screenshot1.png)
----
-
-## Future Enhancements
-
-- Incorporate segmentation overlays for enhanced analysis.
-- Add support for additional medical imaging formats.
-- Improve volume rendering with advanced transfer functions.
----
 
 ## License
 
@@ -150,16 +128,6 @@ Contributions are welcome! Please open an issue or submit a pull request to help
 
 ---
 
-## Project Demo
 
-[Watch the video](https://github.com/user-attachments/assets/698139ca-6b05-4109-9e5c-25af1b6d4f48)
 
----
-
-## Acknowledgements
-
-- **PyQt5** for the responsive user interface.
-- **SimpleITK** for efficient medical image processing.
-- **VTK** for interactive 3D volume rendering.
-- **Matplotlib** for intuitive visualization in the 2D views.
 
