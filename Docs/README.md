@@ -10,15 +10,15 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 
 # Features
 
-- **Three Viewports**: Simultaneously view Axial, Coronal, and Sagittal slices.
+- ### Three Viewports: Simultaneously view Axial, Coronal, and Sagittal slices.
  ![Multi-Planar Views](path/to/mpr-views.gif)
-- **Visualization Controls** <br>
+- ### Visualization Controls <br>
  **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
  **Brightness/Contrast Adjustment** <br>
 ![Visualization Controls](path/to/visualization-controls.gif)
-- **Crosshair Navigation**: Automatically synchronize slice navigation across all planes.
-- **Cine Mode**: Play slices as an animated sequence.
-- **Mouse Interaction**: Interact with the images directly using the mouse.
+- ### Crosshair Navigation: Automatically synchronize slice navigation across all planes.
+- ### Cine Mode: Play slices as an animated sequence.
+- ### Mouse Interaction: Interact with the images directly using the mouse.
   
 - ### AI Orientation Detection
 Automatically detect scan orientation with confidence scores:
@@ -97,22 +97,12 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
    python MPR_Viewer1.py
    ```
 
-3. Use the **Load MRI Scan** button to load NIfTI (`.nii` or `.nii.gz`) files into the viewer.
-
-4. Explore features such as:
-
-   - Adjusting brightness and contrast for better visualization.
-   - Navigating slices with sliders or mouse clicks.
-   - Using the **Play/Pause** button to view slices in motion.
-   - Selecting colormaps from the dropdown menu.
-   - panning using arrow keys
-
 ---
 
 ## Supported File Formats
 
 - **NIfTI**: `.nii`, `.nii.gz`
-- Directory-based DICOM series are also supported.
+- Directory-based DICOM series are supported.
 
 ---
 
@@ -124,7 +114,7 @@ This project is licensed under the MIT License. See the [LICENSE](License) file 
 
 ## Contribution
 
-Contributions are welcome! Please open an issue or submit a pull request to help improve the MPR Viewer.
+
 
 ---
 
