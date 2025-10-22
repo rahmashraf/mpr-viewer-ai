@@ -38,7 +38,7 @@ Automatically detect scan orientation with confidence scores:
 - Automatic resampling for mismatched dimensions
 - Multi-label support
 
-![Segmentation Overlay](path/to/segmentation-overlay.gif)
+![Segmentation Overlay](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Surface_outline.gif)
 
 - ### Region of Interest (ROI) Tools
 - Interactive ROI drawing on any view
