@@ -16,7 +16,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - ### Visualization Controls <br>
    **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
    **Brightness/Contrast Adjustment** <br>
-![Visualization Controls](path/to/visualization-controls.gif)
+![Visualization Controls](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Visualization_controls.gif)
 - ### Crosshair Navigation:
   Automatically synchronize slice navigation across all planes.
 - ### Cine Mode:
