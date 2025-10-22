@@ -30,7 +30,7 @@ Automatically detect scan orientation with confidence scores:
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
 
-![Orientation Detection](path/to/orientation-detection.gif)
+![Orientation Detection](path/to/assests/AI_orientation.gif)
 
 - ### Segmentation Analysis
 - Load and visualize segmentation masks
