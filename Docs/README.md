@@ -54,7 +54,7 @@ Automatically detect scan orientation with confidence scores:
 - Real-time 3D transformation
 - Independent slice navigation
 
-![Oblique View](path/to/oblique-view.gif)
+![Oblique View](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Oblique_view.gif)
 
 ---
 
