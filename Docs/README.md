@@ -46,7 +46,7 @@ Automatically detect scan orientation with confidence scores:
 - Volume extraction and NIfTI export
 - Real-time preview with cyan highlighting
 
-![ROI Drawing](path/to/roi-drawing.gif)
+![ROI Drawing](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/ROI_.gif)
 
 - ### Oblique View 
 - Custom oblique plane rendering
