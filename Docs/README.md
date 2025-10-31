@@ -99,9 +99,9 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 
 2. Install all required libraries, run:
 
-```bash
-pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
-```
+   ```bash
+   pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
+   ```
 
 ** The following files and folders are essential for the MPR Viewer to run correctly.
 If any of them are missing, the application will not start or will throw errors.
