@@ -32,7 +32,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
   ![Oragn Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/organ_detection.jpeg)
 
 - ### AI Orientation Detection
-Automatically detect scan orientation with confidence scores:
+  Automatically detect scan orientation with confidence scores:
 - Supports Axial, Coronal, and Sagittal detection
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
