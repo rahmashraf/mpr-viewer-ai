@@ -24,12 +24,20 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
   Play slices as an animated sequence.
 - ### Mouse Interaction:
   Interact with the images directly using the mouse.
-  
+- ### AI Organ Detection
+  The system integrates an AI-based model for automatic organ detection and classification within medical scans.
+  Built using TensorFlow/Keras with a custom Convolutional Neural Network (CNN).
+  Automatically identifies the primary organ or region in the scan (e.g., heart, brain, liver) with confidence scores.
+
+  ![Oragn Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/organ_detection.jpeg)
+
 - ### AI Orientation Detection
 Automatically detect scan orientation with confidence scores:
 - Supports Axial, Coronal, and Sagittal detection
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
+
+ 
 
 - ### Segmentation Analysis
 - Load and visualize segmentation masks
