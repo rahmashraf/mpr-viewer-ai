@@ -29,7 +29,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
   Built using TensorFlow/Keras with a custom Convolutional Neural Network (CNN).
   Automatically identifies the primary organ or region in the scan (e.g., heart, brain, liver) with confidence scores.
 
-  ![Oragn Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/organ_detection.jpeg)
+![Oragn Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/organ_detection.jpeg)
 
 - ### AI Orientation Detection
   Automatically detect scan orientation with confidence scores:
