@@ -102,11 +102,6 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 ```bash
 pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
 ```
-3. Run the application:
-
-   ```bash
-   python main.py
-   ```
 
 ** The following files and folders are essential for the MPR Viewer to run correctly.
 If any of them are missing, the application will not start or will throw errors.
@@ -128,8 +123,13 @@ src/
 These files are automatically loaded when you run main.py.
 If any of them are missing or moved to a different location, please update the import paths in the code accordingly.
 The application will not function properly without them.
----
 
+3. Run the application:
+
+   ```bash
+   python main.py
+   ```
+   
 ## Supported File Formats
 
 - **NIfTI**: `.nii`, `.nii.gz`
