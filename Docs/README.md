@@ -13,12 +13,12 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - ### Three Viewports:
   Simultaneously view Axial, Coronal, and Sagittal slices.
   
- ![Multi-Planar Views](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/MPR.gif)
+ ![Multi-Planar Views](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/MPR.gif)
 - ### Visualization Controls <br>
    **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
    **Brightness/Contrast Adjustment** <br>
    
- ![Visualization Controls](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Visualization_controls.gif)
+ ![Visualization Controls](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/Visualization_controls.gif)
 - ### Crosshair Navigation:
   Automatically synchronize slice navigation across all planes.
 - ### Cine Mode:
@@ -32,7 +32,7 @@ Automatically detect scan orientation with confidence scores:
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
 
-![Orientation Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/AI_orientation.gif)
+![Orientation Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/AI_orientation.gif)
 
 - ### Segmentation Analysis
 - Load and visualize segmentation masks
@@ -40,7 +40,7 @@ Automatically detect scan orientation with confidence scores:
 - Automatic resampling for mismatched dimensions
 - Multi-label support
 
-![Segmentation Overlay](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Surface_outline.gif)
+![Segmentation Overlay](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/Surface_outline.gif)
 
 - ### Region of Interest (ROI) Tools
 - Interactive ROI drawing on any view
@@ -48,7 +48,7 @@ Automatically detect scan orientation with confidence scores:
 - Volume extraction and NIfTI export
 - Real-time preview with cyan highlighting
 
-![ROI Drawing](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/ROI_.gif)
+![ROI Drawing](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/ROI_.gif)
 
 - ### Oblique View 
 - Custom oblique plane rendering
@@ -56,7 +56,7 @@ Automatically detect scan orientation with confidence scores:
 - Real-time 3D transformation
 - Independent slice navigation
 
-![Oblique View](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assests/Oblique_view.gif)
+![Oblique View](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/Oblique_view.gif)
 
 ---
 
