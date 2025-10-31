@@ -37,7 +37,7 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
 
- ![Orientation Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/Untitled_design.gif)
+ ![Orientation Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/AI_orientation.gif)
 
 - ### Segmentation Analysis
 - Load and visualize segmentation masks
