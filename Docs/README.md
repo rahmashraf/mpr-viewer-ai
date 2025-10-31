@@ -111,18 +111,21 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
 ** The following files and folders are essential for the MPR Viewer to run correctly.
 If any of them are missing, the application will not start or will throw errors.
 
-Please make sure your project structure matches the following:   
-src/
-├── style.qss                     → Main style file for the application's dark theme
-├── model/                        → Folder containing AI model and labels
-│   ├── class_names.txt           → Organ class labels for detection
-│   └── model.keras               → Trained deep learning model for organ/orientation detection
-└── main/                         → Core application logic
-    ├── main.py                   → Entry point of the application
-    ├── detect_oragn.py           → AI organ detection script
-    └── detect_orientation.py     → Orientation detection module
+## 📁 Project Structure
 
-    hese files are automatically loaded when you run main.py.
+Please make sure your project structure matches the following:
+```
+src/
+├── style.qss                     # Main style file for the application's dark theme
+├── model/                        # Folder containing AI model and labels
+│   ├── class_names.txt           # Organ class labels for detection
+│   └── model.keras               # Trained deep learning model for organ/orientation detection
+└── main/                         # Core application logic
+    ├── main.py                   # Entry point of the application
+    ├── detect_organ.py           # AI organ detection script
+    └── detect_orientation.py     # Orientation detection module
+```
+These files are automatically loaded when you run main.py.
 If any of them are missing or moved to a different location, please update the import paths in the code accordingly.
 The application will not function properly without them.
 ---
