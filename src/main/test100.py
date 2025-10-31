@@ -20,6 +20,7 @@ import os
 from scipy.ndimage import rotate, zoom  # Removed binary_fill_holes
 from skimage import measure  # Required for draw_surface_outline
 from detect_orientation import predict_dicom_image
+from detect_organ import OrganDetector
 
 
 
@@ -147,6 +148,10 @@ class MRIViewer(QWidget):
         self.contrast = [1.0, 1.0, 1.0]
         self.adjusting_window = False
         self.last_mouse_pos = None
+
+        # Organ detection
+        self.organ_detector = OrganDetector()
+        self.main_organ_name = None
 
         # View states
         self.panning = False
@@ -322,6 +327,24 @@ class MRIViewer(QWidget):
         load_group = QGroupBox("📁 Load Data")
         load_layout = QVBoxLayout()
 
+        # === AI DETECTION GROUP ===
+        ai_group = QGroupBox("🤖 AI Detection")
+        ai_layout = QVBoxLayout()
+
+        self.detect_organ_button = QPushButton('🫀 Detect Main Organ')
+        self.detect_organ_button.clicked.connect(self.detect_main_organ)
+        self.detect_organ_button.setEnabled(False)
+        ai_layout.addWidget(self.detect_organ_button)
+
+        self.main_organ_label = QLabel("Main Organ: Not detected")
+        self.main_organ_label.setWordWrap(True)
+        self.main_organ_label.setStyleSheet("color: #00adb5; font-size: 10pt; font-weight: bold;")
+        ai_layout.addWidget(self.main_organ_label)
+
+        ai_group.setLayout(ai_layout)
+        self.control_layout.addWidget(ai_group)
+
+
         self.load_nifti_button = QPushButton('📊 Load NIfTI Scan')
         self.load_nifti_button.clicked.connect(self.load_nifti)
         load_layout.addWidget(self.load_nifti_button)
@@ -365,7 +388,7 @@ class MRIViewer(QWidget):
         roi_layout.addWidget(self.draw_roi_button)
 
         self.clear_roi_button = QPushButton('🗑 Clear ROI')
-        self.clear_roi_button.clicked.connect(self.clear_roi)
+        self.clear_roi_button.clicked.connect(lambda: self.clear_roi())
         roi_layout.addWidget(self.clear_roi_button)
 
         self.save_roi_button = QPushButton('💾 Save ROI Volume')
@@ -519,6 +542,7 @@ class MRIViewer(QWidget):
 
         self.initialize_viewers()
         self.load_segmentation_button.setEnabled(True)
+        self.detect_organ_button.setEnabled(True)
         self.status_bar.showMessage(
             f"✓ Loaded: {os.path.basename(file_path)} | Shape: {self.scan_array.shape}", 5000
         )
@@ -551,6 +575,7 @@ class MRIViewer(QWidget):
 
         self.initialize_viewers()
         self.load_segmentation_button.setEnabled(True)
+        self.detect_organ_button.setEnabled(True)
         self.status_bar.showMessage(
             f"✓ Loaded: {len(dicom_series)} DICOM images | Shape: {self.scan_array.shape}", 5000
         )
@@ -588,6 +613,7 @@ class MRIViewer(QWidget):
 
         self.initialize_viewers()
         self.load_segmentation_button.setEnabled(True)
+        self.detect_organ_button.setEnabled(True)
         self.status_bar.showMessage(
             f"✓ Loaded: {os.path.basename(file_path)} | Shape: {self.scan_array.shape}", 5000
         )
@@ -1254,11 +1280,20 @@ class MRIViewer(QWidget):
 
         for ax in [self.axial_ax, self.coronal_ax, self.sagittal_ax]:
             if hasattr(ax, 'roi_patch'):
+                patch = ax.roi_patch
                 try:
-                    ax.roi_patch.remove()
-                except ValueError:
-                    pass
-                del ax.roi_patch
+                    # Check if patch is still in the axes
+                    if patch in ax.patches:
+                        patch.remove()
+                except (ValueError, NotImplementedError, AttributeError) as e:
+                    # If removal fails, try to make it invisible instead
+                    try:
+                        patch.set_visible(False)
+                    except:
+                        pass
+                finally:
+                    # Always delete the attribute
+                    delattr(ax, 'roi_patch')
 
         self.update_all_slices()
         self.status_bar.showMessage("✓ ROI cleared", 3000)
@@ -1391,6 +1426,117 @@ class MRIViewer(QWidget):
         ax.set_xlim(x_min + dx, x_max + dx)
         ax.set_ylim(y_min + dy, y_max + dy)
         ax.figure.canvas.draw_idle()
+
+    # ========================================================================
+    # MAIN ORGAN DETECTION METHOD
+    # ========================================================================
+
+    @safe_execute(show_error=True)
+    def detect_main_organ(self, *args):  # Added *args to handle button click argument
+        """Detect the main organ in the scan"""
+        if self.scan_array is None or self.sitk_image is None:
+            QMessageBox.warning(self, "No Scan", "Please load a scan first.")
+            return
+
+        # Check if TotalSegmentator is installed
+        if not self.organ_detector.check_totalsegmentator_installed():
+            reply = QMessageBox.question(
+                self, "TotalSegmentator Required",
+                "TotalSegmentator is required for organ detection.\n\n"
+                "Would you like to install it now?\n"
+                "(This requires internet and may take 5-10 minutes)",
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                self.status_bar.showMessage("⏳ Installing TotalSegmentator...", 0)
+                QApplication.processEvents()
+                success, message = self.organ_detector.install_totalsegmentator()
+                if not success:
+                    QMessageBox.critical(self, "Installation Failed", message)
+                    self.status_bar.showMessage("❌ Installation failed", 5000)
+                    return
+                QMessageBox.information(self, "Success", "TotalSegmentator installed successfully!")
+            else:
+                return
+
+        # Show warning about processing time
+        reply = QMessageBox.information(
+            self, "Starting Detection",
+            "Organ detection will now start.\n\n"
+            "⏱ This may take 2-5 minutes in fast mode.\n"
+            "📊 Processing will run in the background.\n\n"
+            "Please wait...",
+            QMessageBox.Ok
+        )
+
+        self.status_bar.showMessage("⏳ Detecting main organ... Please wait (2-5 minutes)", 0)
+        self.detect_organ_button.setEnabled(False)
+        self.detect_organ_button.setText("⏳ Processing...")
+        QApplication.processEvents()
+
+        try:
+            # Run segmentation in fast mode
+            success, message, seg_array = self.organ_detector.segment_organs(
+                self.sitk_image,
+                fast=True  # Always use fast mode for main organ detection
+            )
+
+            self.detect_organ_button.setEnabled(True)
+            self.detect_organ_button.setText("🫀 Detect Main Organ")
+
+            if success and self.organ_detector.detected_organs:
+                # Find the main organ (largest by volume)
+                organ_stats = self.organ_detector.get_organ_statistics()
+
+                if organ_stats:
+                    # Get organ with largest volume
+                    main_organ = max(organ_stats.items(),
+                                     key=lambda x: x[1]['volume_voxels'])[0]
+
+                    display_name = organ_stats[main_organ].get('display_name', main_organ)
+                    volume = organ_stats[main_organ]['volume_voxels']
+
+                    self.main_organ_name = main_organ
+
+                    # Update label
+                    self.main_organ_label.setText(
+                        f"Main Organ:\n{display_name}\n"
+                        f"({volume:,} voxels)"
+                    )
+
+                    # Show popup
+                    QMessageBox.information(
+                        self, "Main Organ Detected ✓",
+                        f"🫀 Main Organ: {display_name}\n\n"
+                        f"📊 Volume: {volume:,} voxels\n"
+                        f"📍 Total organs found: {len(self.organ_detector.detected_organs)}"
+                    )
+
+                    self.status_bar.showMessage(f"✓ Main organ detected: {display_name}", 10000)
+
+                    # Jump to organ center
+                    centroid = self.organ_detector.get_organ_centroid(main_organ)
+                    if centroid:
+                        self.crosshair_z, self.crosshair_y, self.crosshair_x = centroid
+                        self.axial_slider.setValue(self.crosshair_z)
+                        self.coronal_slider.setValue(self.crosshair_y)
+                        self.sagittal_slider.setValue(self.crosshair_x)
+                        self.update_all_slices()
+                else:
+                    QMessageBox.warning(self, "No Organs Found", "No organs detected in the scan.")
+                    self.status_bar.showMessage("⚠ No organs detected", 5000)
+                    self.main_organ_label.setText("Main Organ: None detected")
+            else:
+                QMessageBox.critical(self, "Detection Failed", f"Detection failed:\n\n{message}")
+                self.status_bar.showMessage("❌ Detection failed", 5000)
+                self.main_organ_label.setText("Main Organ: Detection failed")
+
+        except Exception as e:
+            self.detect_organ_button.setEnabled(True)
+            self.detect_organ_button.setText("🫀 Detect Main Organ")
+            self.logger.error(f"Organ detection error: {e}", exc_info=True)
+            QMessageBox.critical(self, "Error", f"An error occurred:\n\n{str(e)}")
+            self.status_bar.showMessage(f"❌ Error: {str(e)}", 5000)
 
 
 # ============================================================================

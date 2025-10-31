@@ -48,6 +48,49 @@ class OrganDetector:
         self.detected_organs = []
         self.organ_bounds = {}
 
+    def check_gpu_availability(self) -> Tuple[bool, str]:
+        """
+        Check if GPU is available for TotalSegmentator.
+        Returns: (gpu_available, status_message)
+        """
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                gpu_name = torch.cuda.get_device_name(0)
+                gpu_memory = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)  # GB
+                message = f"✓ GPU Available: {gpu_name} ({gpu_memory:.1f} GB)"
+                print("\n" + "=" * 60)
+                print("🚀 GPU DETECTION")
+                print("=" * 60)
+                print(f"   Status: ENABLED")
+                print(f"   Device: {gpu_name}")
+                print(f"   Memory: {gpu_memory:.1f} GB")
+                print(f"   CUDA Version: {torch.version.cuda}")
+                print("=" * 60 + "\n")
+                return True, message
+            else:
+                message = "⚠ GPU not available - using CPU (will be slower)"
+                print("\n" + "=" * 60)
+                print("⚠️  GPU DETECTION")
+                print("=" * 60)
+                print("   Status: NOT AVAILABLE")
+                print("   Running on: CPU")
+                print("   Note: Processing will be 5-10x slower")
+                print("=" * 60 + "\n")
+                return False, message
+
+        except ImportError:
+            message = "⚠ PyTorch not installed - cannot detect GPU"
+            print("\n" + "=" * 60)
+            print("⚠️  GPU DETECTION")
+            print("=" * 60)
+            print("   Status: UNKNOWN")
+            print("   Reason: PyTorch not found")
+            print("   Install: pip install torch")
+            print("=" * 60 + "\n")
+            return False, message
+
     def check_totalsegmentator_installed(self) -> bool:
         """Check if TotalSegmentator is installed."""
         try:
@@ -85,6 +128,22 @@ class OrganDetector:
         Returns:
             (success, message, segmentation_array)
         """
+        # ADD THIS BLOCK HERE (right after docstring, before the check_totalsegmentator_installed check):
+        # ========== GPU CHECK ==========
+        gpu_available, gpu_message = self.check_gpu_availability()
+        print(f"[INFO] {gpu_message}")
+
+        if not gpu_available:
+            print("[WARNING] TotalSegmentator will run on CPU - expect 2-10 minutes processing time")
+        else:
+            print("[INFO] TotalSegmentator will use GPU - expect 30-120 seconds processing time")
+        # ================================
+
+        # Now continue with your existing code:
+        if not self.check_totalsegmentator_installed():
+            return False, "TotalSegmentator not installed. Please install it first.", None
+
+        # ... rest of your existing code ...
         if not self.check_totalsegmentator_installed():
             return False, "TotalSegmentator not installed. Please install it first.", None
 
@@ -104,12 +163,36 @@ class OrganDetector:
                 if fast:
                     cmd.append('--fast')
 
+                # ADD THIS BLOCK:
+                # Force device selection
+                gpu_available, _ = self.check_gpu_availability()
+                if gpu_available:
+                    cmd.extend(['--device', 'gpu'])
+                    print("[INFO] Forcing GPU usage with --device gpu flag")
+                else:
+                    cmd.extend(['--device', 'cpu'])
+                    print("[INFO] Using CPU (no GPU available)")
+
                 if roi_subset:
                     cmd.extend(['--roi_subset'] + roi_subset)
 
+                # ADD THIS BEFORE subprocess.run:
+                import time
+                start_time = time.time()
+
                 # Run segmentation
+                print(f"[INFO] Running TotalSegmentator: {' '.join(cmd)}")
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+
+                # ADD THIS AFTER subprocess.run:
+                elapsed_time = time.time() - start_time
+                print(
+                    f"[TIMING] Segmentation completed in {elapsed_time:.1f} seconds ({elapsed_time / 60:.1f} minutes)")
+
+                # Run segmentation
+                print(f"[CMD] Running: {' '.join(cmd)}")
                 print(f"Running TotalSegmentator: {' '.join(cmd)}")
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)  # 15 minutes
 
                 if result.returncode != 0:
                     return False, f"Segmentation failed: {result.stderr}", None
@@ -156,7 +239,8 @@ class OrganDetector:
 
                 self.segmentation_mask = combined_mask
 
-                message = f"Successfully detected {len(self.detected_organs)} organs: {', '.join(self.detected_organs)}"
+                gpu_status = "GPU" if gpu_available else "CPU"
+                message = f"Successfully detected {len(self.detected_organs)} organs in {elapsed_time:.1f}s using {gpu_status}: {', '.join(self.detected_organs)}"
                 return True, message, combined_mask
 
             except subprocess.TimeoutExpired:
