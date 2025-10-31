@@ -105,7 +105,7 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
 2. Run the application:
 
    ```bash
-   python test 101.py
+   python main.py
    ```
 
 ---
