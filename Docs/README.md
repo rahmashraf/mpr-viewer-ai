@@ -31,8 +31,6 @@ Automatically detect scan orientation with confidence scores:
 - Deep learning model with high accuracy
 - Arabic and English labels for medical professionals
 
-![Orientation Detection](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/AI_orientation.gif)
-
 - ### Segmentation Analysis
 - Load and visualize segmentation masks
 - **Outline Mode**: Display segmentation boundaries on scan
