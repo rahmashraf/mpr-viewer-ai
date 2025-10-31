@@ -98,8 +98,7 @@ pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tens
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/mpr-viewer.git
-   cd mpr-viewer
+   git clone https://github.com/rahmashraf/mpr-viewer-ai.git
    ```
 
 2. Run the application:
