@@ -13,7 +13,6 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
 - ### Three Viewports:
   Simultaneously view Axial, Coronal, and Sagittal slices.
   
- ![Multi-Planar Views](https://github.com/rahmashraf/mpr-viewer-ai/blob/main/assets/MPR.gif)
 - ### Visualization Controls <br>
    **9 Colormap Options**: gray, viridis, plasma, inferno, magma, cividis, jet, hot, cool <br>
    **Brightness/Contrast Adjustment** <br>
