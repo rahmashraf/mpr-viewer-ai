@@ -103,11 +103,12 @@ MPR Viewer is a powerful, user-friendly desktop application designed for medical
    pip install PyQt5 matplotlib SimpleITK vtk numpy scipy scikit-image pydicom tensorflow
    ```
 
-** The following files and folders are essential for the MPR Viewer to run correctly.
+ The following files and folders are essential for the MPR Viewer to run correctly.
 If any of them are missing, the application will not start or will throw errors.
 
 ## 📁 Project Structure
-
+The following files and folders are essential for the MPR Viewer to run correctly.
+If any of them are missing, the application will not start or will throw errors.
 Please make sure your project structure matches the following:
 ```
 src/
